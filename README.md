@@ -11,6 +11,7 @@ Departemen Teknik Informatika, Institut Teknologi Sepuluh Nopember (ITS)
   - Acquirell Kriswanto (5025241035)  
 
 **Deployed website:** 
+https://k-naulita.github.io/PDASimulator/
 
 ---
 
