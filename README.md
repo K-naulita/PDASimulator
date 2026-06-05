@@ -1,8 +1,8 @@
-# PDA Simulator — Otomata
+# PDA Simulator 
 
 Simulasi mesin **Pushdown Automata (PDA)** berbasis web. Program ini memungkinkan pengguna menginputkan string dan menentukan apakah string tersebut diterima (**ACCEPTED**) atau ditolak (**REJECTED**) oleh mesin PDA yang dipilih.
 
-Dibuat sebagai Tugas Praktikum #3 — Mata Kuliah Otomata A  
+Dibuat sebagai Tugas Praktikum #3 Mata Kuliah Otomata A  
 Departemen Teknik Informatika, Institut Teknologi Sepuluh Nopember (ITS)
 
 **Anggota Kelompok 5:**  
