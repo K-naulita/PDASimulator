@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDA Simulator — Otomata</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo"><span>PDA</span>.SIMULATOR // Otomata - A</div>
+      <div class="badge">Kelompok 5</div>
+    </header>
+
+    <div class="main">
+      <!-- ═══════════════ LEFT PANEL ═══════════════ -->
+      <div>
+        <!-- PDA Selector -->
+        <div class="card" style="margin-bottom: 1.4rem">
+          <div class="card-title">Pilih Mesin PDA</div>
+
+          <div class="pda-tabs" id="pda-tabs">
+            <button class="pda-tab active" data-pda="anbn">aⁿbⁿ (n≥1)</button>
+            <button class="pda-tab" data-pda="palindrome">
+              Palindrome sXs̃
+            </button>
+            <button class="pda-tab" data-pda="equal">a = b count</button>
+            <button class="pda-tab" data-pda="custom">✦ Custom PDA</button>
+          </div>
+
+          <!-- Diagram State -->
+          <div class="diagram-wrap">
+            <svg id="pda-diagram" width="580" height="160"></svg>
+          </div>
+
+          <!-- Deskripsi bahasa -->
+          <div class="info-box" id="pda-desc"></div>
+
+          <!-- Custom PDA Builder-->
+          <div
+            class="custom-builder"
+            id="custom-builder"
+            style="margin-top: 1.2rem"
+          >
+            <div
+              style="
+                font-family: var(--mono);
+                font-size: 0.7rem;
+                color: var(--muted);
+                margin-bottom: 0.4rem;
+              "
+            >
+              Tambah transisi: (state, read, stack_top) → (next_state, push)
+            </div>
+            <div class="build-row">
+              <input
+                class="build-input"
+                id="b-from"
+                placeholder="state asal (e.g. q0)"
+              />
+              <input
+                class="build-input"
+                id="b-read"
+                placeholder="baca (a/b/λ)"
+              />
+              <input
+                class="build-input"
+                id="b-top"
+                placeholder="stack top (a/b/Z/λ)"
+              />
+              <input class="build-input" id="b-to" placeholder="state tujuan" />
+              <input
+                class="build-input"
+                id="b-push"
+                placeholder="push (ab/λ)"
+              />
+              <button class="build-btn" onclick="addTransition()">+</button>
+            </div>
+            <div class="build-row">
+              <input
+                class="build-input"
+                id="b-start"
+                placeholder="Start state (e.g. q0)"
+              />
+              <input
+                class="build-input"
+                id="b-accept"
+                placeholder="Accept states, pisah koma: q3,q4"
+              />
+              <button class="build-btn" onclick="applyCustomPDA()">
+                Terapkan
+              </button>
+            </div>
+            <div id="transitions-list"></div>
+          </div>
+        </div>
+
+        <!-- Simulasi String -->
+        <div class="card">
+          <div class="card-title">Simulasi String</div>
+
+          <!-- Banner hasil -->
+          <div id="result-banner">
+            <span class="result-icon" id="res-icon"></span>
+            <span id="res-text"></span>
+          </div>
+
+          <!-- Input + tombol -->
+          <div class="input-row">
+            <input
+              class="string-input"
+              id="string-input"
+              placeholder="Ketik string, e.g. aaabbb"
+              spellcheck="false"
+              onkeydown="if (event.key === 'Enter') runPDA();"
+            />
+            <button class="btn btn-run" onclick="runPDA()">▶ RUN</button>
+            <button class="btn btn-step" onclick="startStep()">STEP</button>
+            <button class="btn btn-clear" onclick="clearAll()">✕</button>
+          </div>
+
+          <!-- Kontrol step-by-step -->
+          <div class="step-controls" id="step-controls">
+            <button class="btn btn-step" onclick="doStep(-1)">◀ Prev</button>
+            <div class="step-info" id="step-info">—</div>
+            <button class="btn btn-step" onclick="doStep(1)">Next ▶</button>
+            <button class="btn btn-clear" onclick="exitStep()">✕ Exit</button>
+          </div>
+
+          <!-- Input Tape -->
+          <div class="tape-label">Input Tape</div>
+          <div id="tape-cells"></div>
+
+          <!-- Pushdown Stack -->
+          <div class="tape-label">Pushdown Stack (top → kanan)</div>
+          <div id="stack-cells"><span class="stack-empty">kosong</span></div>
+
+          <!-- Trace Log -->
+          <div class="tape-label" style="margin-top: 0.8rem">Trace Log</div>
+          <div id="trace-log"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ RIGHT PANEL ═══════════════ -->
+      <div class="right-panel">
+        <!-- Batch Test -->
+        <div class="card">
+          <div class="card-title">Batch Test</div>
+          <textarea
+            id="batch-input"
+            placeholder="Masukkan beberapa string, satu per baris:&#10;aaabbb&#10;ab&#10;aab&#10;aaabbbbb"
+          ></textarea>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.7rem">
+            <button class="btn btn-run" style="flex: 1" onclick="runBatch()">
+              ▶ Uji Semua
+            </button>
+            <button class="btn btn-clear" onclick="clearBatch()">✕</button>
+          </div>
+          <div id="batch-results"></div>
+        </div>
+
+        <!-- Referensi Cepat -->
+        <div class="card">
+          <div class="card-title">Referensi Cepat</div>
+          <div class="info-box" style="font-size: 0.77rem">
+            <strong>Simbol khusus:</strong><br />
+            λ (lambda) = epsilon, string kosong<br />
+            Z = bottom-of-stack marker<br />
+            X = separator pada palindrome<br /><br />
+            <strong>Cara kerja PDA:</strong><br />
+            1. Baca karakter dari Input Tape<br />
+            2. Cek state &amp; top of stack<br />
+            3. Eksekusi transisi (push/pop/skip)<br />
+            4. Halt di ACCEPTED atau REJECTED<br /><br />
+            <strong>Notasi transisi:</strong><br />
+            <span style="color: var(--orange)">(q, a, A) → (p, BC)</span><br />
+            Dari state q, baca 'a', pop A → ke state p, push BC
+          </div>
+        </div>
+
+        <!-- Statistik Sesi -->
+        <div class="card">
+          <div class="card-title">Statistik Sesi</div>
+          <div
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem"
+          >
+            <div
+              style="
+                background: rgba(34, 197, 94, 0.08);
+                border: 1px solid rgba(34, 197, 94, 0.25);
+                border-radius: 10px;
+                padding: 0.9rem;
+                text-align: center;
+              "
+            >
+              <div
+                style="
+                  font-family: var(--mono);
+                  font-size: 1.6rem;
+                  font-weight: 700;
+                  color: var(--green);
+                "
+                id="stat-acc"
+              >
+                0
+              </div>
+              <div
+                style="
+                  font-size: 0.72rem;
+                  color: var(--muted);
+                  margin-top: 0.2rem;
+                "
+              >
+                Accepted
+              </div>
+            </div>
+            <div
+              style="
+                background: rgba(239, 68, 68, 0.08);
+                border: 1px solid rgba(239, 68, 68, 0.25);
+                border-radius: 10px;
+                padding: 0.9rem;
+                text-align: center;
+              "
+            >
+              <div
+                style="
+                  font-family: var(--mono);
+                  font-size: 1.6rem;
+                  font-weight: 700;
+                  color: var(--red);
+                "
+                id="stat-rej"
+              >
+                0
+              </div>
+              <div
+                style="
+                  font-size: 0.72rem;
+                  color: var(--muted);
+                  margin-top: 0.2rem;
+                "
+              >
+                Rejected
+              </div>
+            </div>
+          </div>
+          <div
+            style="
+              margin-top: 0.8rem;
+              font-family: var(--mono);
+              font-size: 0.7rem;
+              color: var(--muted);
+              text-align: center;
+            "
+          >
+            Total: <span id="stat-total">0</span> string diuji
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
