@@ -142,10 +142,10 @@ return REJECTED
 
 ## Teknologi
 
-- **HTML5** — struktur antarmuka
-- **CSS3** — desain, animasi, layout grid
-- **Vanilla JavaScript** — algoritma PDA, manipulasi DOM
-- **Google Fonts** — Space Mono + DM Sans
+- **HTML5**, struktur antarmuka
+- **CSS3**, desain, animasi, layout grid
+- **Vanilla JavaScript**, algoritma PDA, manipulasi DOM
+- **Google Fonts**, Space Mono + DM Sans
 - Tidak menggunakan framework atau library eksternal
 
 ---
